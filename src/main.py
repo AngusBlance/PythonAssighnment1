@@ -52,8 +52,45 @@ def scores_for_words(values, text):
         scores.append(sub_score)
     
     return(scores)
+
+
+
         
    
+def create_all_abrvs(values, text):
+    all_abrvs = []
+    for word in text:
+        abrv = []
+        prev_index1 = None
+        for letter1 in word[1:-1]:
+            score = 0
+            prev_index2 = None
+            for letter2 in word[word.index(letter1)+1:]:
+                if letter1 == ' ' or letter2 == ' ':
+                    continue
+                elif prev_index1 and prev_index2 is not None and prev_index1 == ' ':
+                    score += values.get(letter2)
+                elif prev_index1 and prev_index2 is not None and prev_index2 == ' ':
+                    score += values.get(letter1)
+                elif prev_index1 and prev_index2 is not None and prev_index1 == ' ' and prev_index2 == ' ':
+                    score = 0
+                else:
+                    score = values.get(letter1) + values.get(letter2)
+
+                prev_index2 = letter2
+                score = str(score)
+                print(word[0]+letter1+letter2 + ':' +score)
+                abrv.append(word[0]+letter1+letter2 + ':' +score)
+            prev_index1 = letter1
+
+                
+        all_abrvs.append(abrv)
+
+    print(all_abrvs)
+
+
+
+
 
 def main(values,trees):
 
@@ -62,8 +99,8 @@ def main(values,trees):
     values =  create_dict_from_file(values)
     #print(values)
     word_values = scores_for_words(values, text)     
-    print(word_values)
-
+    #print(word_values)
+    create_all_abrvs(values, text)
 
 main(values, trees)
 
