@@ -73,35 +73,14 @@ def create_all_abrvs(values, text):
             #keep track of the previous letter for the third letter for scoring
             prev_index2 = letter1
             #iterate from the third letter to the last letter for the third letter in our abreviation
+
             for letter2 in word[word.index(letter1)+1:]:
                 #if the letter is a space skip it
                 if letter1 == '$' or letter2 == '$' or prev_index1 is None or prev_index2 is None:
                     prev_index2 = letter2
                     continue
-                #check if the previous letter is a space and if the letter is not a space
-                elif prev_index1 == '$' and prev_index2 != '$' and letter2 != '$':
-                    #just use letter 2 for the score as letter1 has a space behind it hence =0
-                    score += values.get(letter2)
-
-                    #set the previous letter to the current letter for the next iteration
-                    prev_index2 = letter2
-                    #add the abreviation and score to the list of abreviations
-                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
-                    score = 0
-                    continue
-                    
-                elif prev_index2 == '$' and prev_index1 != '$' and letter1 != '$':
-                    #just use letter 1 for the score as letter2 has a space behind it hence =0
-                    score += values.get(letter1)
-
-                    #set the previous letter to the current letter for the next iteration
-                    prev_index2 = letter2
-                    #add the abreviation and score to the list of abreviations
-                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
-                    score = 0
-                    continue
-                    
-                    #if both previous letters are spaces then the score is 0
+                
+                #if both previous letters are spaces then the score is 0
                 elif prev_index1 == '$' and prev_index2 == '$':
                     score = 0
 
@@ -122,11 +101,33 @@ def create_all_abrvs(values, text):
                     abrv.append(word[0]+letter1+letter2 + ':' +str(score))
                     score = 0
                     continue
-                    
+                #check if the previous letter is a space and if the letter is not a space
+                elif prev_index1 == '$'  and letter2 != '$':
+                    #just use letter 2 for the score as letter1 has a space behind it hence =0
+                    score += values.get(letter2)
 
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    score = 0
+                    continue
+                    
+                elif prev_index2 == '$'  and letter1 != '$':
+                    #just use letter 1 for the score as letter2 has a space behind it hence =0
+                    score += values.get(letter1)
+
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    score = 0
+                    continue
+                    
+                    
                 
+                    
             #reset the score to 0 for the next letter
-            
 
             #set the previous letter to the current letter for the next iteration
             prev_index1 = letter1
@@ -136,6 +137,46 @@ def create_all_abrvs(values, text):
 
     return all_abrvs
 
+
+
+''' 
+just playing about with chat gpt
+doesnt work
+'''
+def create_all_abrvs_gpt(values, text):
+    all_abrvs = []
+
+    for word in text:
+        abrv = []
+
+        for i, letter1 in enumerate(word[:-1]):
+            prev_index1 = i - 1 if i > 0 else None
+
+            for j, letter2 in enumerate(word[i + 1:]):
+                prev_index2 = i + j
+
+                # Check if any of the previous characters are spaces or '$'
+                if (' ' in word[prev_index1] if prev_index1 is not None else False) or (' ' in word[prev_index2]) or ('$' in [letter1, letter2]):
+                    score = 0
+                else:
+                    score = values.get(letter1, 0) + values.get(letter2, 0)
+
+                abbreviation = f"{word[0]}{letter1}{letter2}:{score}"
+                if '$' not in abbreviation:  # Exclude results with '$'
+                    abrv.append(abbreviation)
+
+        all_abrvs.append(abrv)
+
+    return all_abrvs
+
+def check_for_multiples(all_abrvs):
+
+    #loop through all abrreviations of each word
+    for word in all_abrvs:
+        #loop through each indavidual abreviation
+        for abrv in word:
+            print(abrv)
+            
 
 
 
@@ -149,7 +190,8 @@ def main(values,trees):
     word_values = scores_for_words(values, text)     
     #print(word_values)
     all_abrvs = create_all_abrvs(values, text)
-    print(all_abrvs[29])
+    check_for_multiples(all_abrvs)
+    
 
 main(values, trees)
 
