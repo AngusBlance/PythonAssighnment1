@@ -15,7 +15,7 @@ def read_file_lines(file_path):
 
     return words
 
-
+#testing
 
 def create_dict_from_file(file_path):
     #create dictionary from the values file. It looks like a dictionary in the txt file so this makes sense
