@@ -11,11 +11,11 @@ def read_file_lines(file_path):
         
         #iterate through the lines in our file and remove and \n's
 
-        words = [line.replace('\n','').upper() for line in file]
+        words = [line.replace('\n','').replace(' ', '$').replace('-','').replace("'",'').upper() for line in file]
 
     return words
 
-#testing
+
 
 def create_dict_from_file(file_path):
     #create dictionary from the values file. It looks like a dictionary in the txt file so this makes sense
@@ -58,35 +58,83 @@ def scores_for_words(values, text):
         
    
 def create_all_abrvs(values, text):
+    #create a list of all the abreviations for every word
     all_abrvs = []
+    #iterate through each word in the text
     for word in text:
+        #create a list of abreviations for each indavidual word
         abrv = []
-        prev_index1 = None
+        #keep track of the previous letter for the second letter for scoring
+        prev_index1 = word[0]
+        #iterate from the second letter to the second to last letter for the second letter in our abreviation
         for letter1 in word[1:-1]:
+            #create a score for each abreviation
             score = 0
-            prev_index2 = None
+            #keep track of the previous letter for the third letter for scoring
+            prev_index2 = letter1
+            #iterate from the third letter to the last letter for the third letter in our abreviation
             for letter2 in word[word.index(letter1)+1:]:
-                if letter1 == ' ' or letter2 == ' ':
+                #if the letter is a space skip it
+                if letter1 == '$' or letter2 == '$' or prev_index1 is None or prev_index2 is None:
+                    prev_index2 = letter2
                     continue
-                elif prev_index1 and prev_index2 is not None and prev_index1 == ' ':
+                #check if the previous letter is a space and if the letter is not a space
+                elif prev_index1 == '$' and prev_index2 != '$' and letter2 != '$':
+                    #just use letter 2 for the score as letter1 has a space behind it hence =0
                     score += values.get(letter2)
-                elif prev_index1 and prev_index2 is not None and prev_index2 == ' ':
-                    score += values.get(letter1)
-                elif prev_index1 and prev_index2 is not None and prev_index1 == ' ' and prev_index2 == ' ':
+
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
                     score = 0
-                else:
+                    continue
+                    
+                elif prev_index2 == '$' and prev_index1 != '$' and letter1 != '$':
+                    #just use letter 1 for the score as letter2 has a space behind it hence =0
+                    score += values.get(letter1)
+
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    score = 0
+                    continue
+                    
+                    #if both previous letters are spaces then the score is 0
+                elif prev_index1 == '$' and prev_index2 == '$':
+                    score = 0
+
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    score = 0
+                    continue
+                    
+                #if both letters are not spaces then add the values together
+                elif letter1 != '$' and letter2 != '$':
                     score = values.get(letter1) + values.get(letter2)
 
-                prev_index2 = letter2
-                score = str(score)
-                print(word[0]+letter1+letter2 + ':' +score)
-                abrv.append(word[0]+letter1+letter2 + ':' +score)
+                    #set the previous letter to the current letter for the next iteration
+                    prev_index2 = letter2
+                    #add the abreviation and score to the list of abreviations
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    score = 0
+                    continue
+                    
+
+                
+            #reset the score to 0 for the next letter
+            
+
+            #set the previous letter to the current letter for the next iteration
             prev_index1 = letter1
 
                 
         all_abrvs.append(abrv)
 
-    print(all_abrvs)
+    return all_abrvs
 
 
 
@@ -100,7 +148,8 @@ def main(values,trees):
     #print(values)
     word_values = scores_for_words(values, text)     
     #print(word_values)
-    create_all_abrvs(values, text)
+    all_abrvs = create_all_abrvs(values, text)
+    print(all_abrvs[29])
 
 main(values, trees)
 
