@@ -189,7 +189,7 @@ def find_best_score(all_abrvs):
         #create an array for the high scores for each word incase of multiple options
         abrv_high_scores = []
         #create a High score
-        High_score = 0
+        High_score = 1000
         #save the index of the highest score
         High_score_index = 0
         
@@ -198,8 +198,8 @@ def find_best_score(all_abrvs):
             #create the score of the current abreviation we are on
             current_score = score[-2:].replace(':','')
             current_score = int(current_score)
-            #check if the current score is greate than the Highest score so far
-            if current_score > High_score:
+            #check if the current score is less than the Highest score so far
+            if current_score < High_score:
                 #if it is > then we create a new high-score and save its index
                 High_score = current_score
                 High_score_index = j
@@ -219,17 +219,23 @@ def check_multiple_high_scores(best_abrvs,all_abrvs):
     for i, word in enumerate(all_abrvs):
         multiple_abrv = []
         for j, abrv in enumerate(word):
-            best_score = str(best_abrvs[i][-2:]).replace(':','')
+            
+            best_score = str(best_abrvs[i][0][-2:]).replace(':','')
             best_score = int(best_score)
             current_score = abrv[-2:].replace(':','')
             if best_abrvs[i] == abrv:
                 continue
             elif best_score ==current_score:
                 multiple_abrv.append(all_abrvs[i][j])
-            
-        all_high_scores.append(multiple_abrv)
+                print(all_abrvs[i][j])
         
-    return all_high_scores
+        if len(multiple_abrv) != 0:
+            all_high_scores.append(multiple_abrv)
+    if len(all_high_scores) != 0:   
+        return all_high_scores
+    
+    else:
+        print('no multiple high scores')
         
             
 
@@ -246,7 +252,8 @@ def main(values,trees):
     #print(word_values)
     all_abrvs = create_all_abrvs(values, text)
     best_abrvs = find_best_score(all_abrvs)
-    print(check_multiple_high_scores(best_abrvs,all_abrvs))
+    print(best_abrvs)
+    #print(check_multiple_high_scores(best_abrvs,all_abrvs))
     
     
     
