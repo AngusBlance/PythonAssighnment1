@@ -169,15 +169,27 @@ def create_all_abrvs_gpt(values, text):
 
     return all_abrvs
 
-def check_for_multiples(all_abrvs):
+def Delete_Multiples(all_abrvs):
 
     #loop through all abrreviations of each word
     for i, word in enumerate(all_abrvs):
         #loop through each indavidual abreviation
         
-        for abrv in word:
+        for abrv_i, abrv in enumerate(word):
+            #we are now itterating through each abreviation
+            #now we need to itterate from the current abreviation to the end of the list to check for duplicates
+            for abrv2_i, abrv2 in enumerate(all_abrvs[i][abrv_i+1:]):
+                #if the current abreviation is in the word then we delete it
+                if abrv in abrv2:
+                    all_abrvs[i].remove(abrv)
+                    #all_abrvs[abrv2_i].remove(abrv)
+                    print(abrv+ abrv2+' '+ str(abrv_i) + str(abrv2_i))
+                    continue
+                
+    return all_abrvs
             
-            print(abrv[:-3])
+            
+            
             
 
 def find_best_score(all_abrvs):
@@ -187,7 +199,7 @@ def find_best_score(all_abrvs):
     #ittarate through all combinations of abreviations
     for i, word in enumerate(all_abrvs):
         #create an array for the high scores for each word incase of multiple options
-        abrv_high_scores = []
+        abrv_high_scores = ''
         #create a High score
         High_score = 1000
         #save the index of the highest score
@@ -205,7 +217,7 @@ def find_best_score(all_abrvs):
                 High_score_index = j
                 
         #once we have found this we append this to our abrv high scores for our current word  
-        abrv_high_scores.append(all_abrvs[i][High_score_index])
+        abrv_high_scores= all_abrvs[i][High_score_index]
         #we then append these to all of our abrvs
         best_abrvs.append(abrv_high_scores)
         
@@ -216,11 +228,12 @@ def find_best_score(all_abrvs):
             
 def check_multiple_high_scores(best_abrvs,all_abrvs):
     all_high_scores = []
+    
     for i, word in enumerate(all_abrvs):
         multiple_abrv = []
         for j, abrv in enumerate(word):
             
-            best_score = str(best_abrvs[i][0][-2:]).replace(':','')
+            best_score = str(best_abrvs[i][-2:]).replace(':','')
             best_score = int(best_score)
             current_score = abrv[-2:].replace(':','')
             if best_abrvs[i] == abrv:
@@ -231,6 +244,7 @@ def check_multiple_high_scores(best_abrvs,all_abrvs):
         
         if len(multiple_abrv) != 0:
             all_high_scores.append(multiple_abrv)
+            
     if len(all_high_scores) != 0:   
         return all_high_scores
     
@@ -251,7 +265,9 @@ def main(values,trees):
     word_values = scores_for_words(values, text)     
     #print(word_values)
     all_abrvs = create_all_abrvs(values, text)
+    all_abrvs = Delete_Multiples(all_abrvs)
     best_abrvs = find_best_score(all_abrvs)
+
     print(best_abrvs)
     #print(check_multiple_high_scores(best_abrvs,all_abrvs))
     
