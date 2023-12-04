@@ -1,0 +1,9 @@
+there is a space as a letter
+
+both of the previous letters to letter 2 and 3 are spaces
+
+previous letter of letter 2 is a space
+
+previous letter of letter 3 is a space
+
+no previous letters are spaces

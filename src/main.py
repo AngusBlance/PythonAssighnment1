@@ -139,51 +139,73 @@ def create_all_abrvs(values, text):
 
 
 
-''' 
-just playing about with chat gpt
-doesnt work
-'''
-def create_all_abrvs_gpt(values, text):
-    all_abrvs = []
 
+
+def create_all_abrvs2(values, text):
+    all_abrvs = []
+    
     for word in text:
         abrv = []
-
-        for i, letter1 in enumerate(word[:-1]):
-            prev_index1 = i - 1 if i > 0 else None
-
-            for j, letter2 in enumerate(word[i + 1:]):
-                prev_index2 = i + j
-
-                # Check if any of the previous characters are spaces or '$'
-                if (' ' in word[prev_index1] if prev_index1 is not None else False) or (' ' in word[prev_index2]) or ('$' in [letter1, letter2]):
+        for letter1_index, letter1 in enumerate(word[1:-1]):
+            letter1_index = letter1_index 
+            for letter2_index, letter2 in enumerate(word[letter1_index+2:]):
+                #There are a few possible combinations of spaces and letters that we
+                #need to differentiate between
+                letter2_index = letter2_index + letter1_index + 2  
+                #there is a space as a letter
+                if letter1 == '$' or letter2 == '$':
+                    
+                    continue
+                
+                #both previous letters are spaces
+                elif word[letter1_index-1] == '$' and word[letter2_index-1] == '$':
                     score = 0
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    
+                    continue
+                
+                #previous letter of letter 1`` is a space
+                elif word[letter1_index-1] == '$':
+                    score = values.get(letter2)
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    
+                    continue
+                
+                #previous letter of letter 2 is a space 
+                elif word[letter2_index-1] == '$':
+                    score = values.get(letter1)
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                    
+                    continue
+                
                 else:
-                    score = values.get(letter1, 0) + values.get(letter2, 0)
+                    score = values.get(letter1) + values.get(letter2)
+                    score = int(score)
+                    abrv.append(word[0]+letter1+letter2 + ':' +str(score))
+                      
 
-                abbreviation = f"{word[0]}{letter1}{letter2}:{score}"
-                if '$' not in abbreviation:  # Exclude results with '$'
-                    abrv.append(abbreviation)
-
+        
         all_abrvs.append(abrv)
+        
 
     return all_abrvs
+
 
 def Delete_Multiples(all_abrvs):
 
     #loop through all abrreviations of each word
-    for i, word in enumerate(all_abrvs):
+    for word_index, word in enumerate(all_abrvs):
         #loop through each indavidual abreviation
         
-        for abrv_i, abrv in enumerate(word):
+        for abrv1_index, abrv1 in enumerate(word):
             #we are now itterating through each abreviation
             #now we need to itterate from the current abreviation to the end of the list to check for duplicates
-            for abrv2_i, abrv2 in enumerate(all_abrvs[i][abrv_i+1:]):
+            for abrv2_index, abrv2 in enumerate(all_abrvs[word_index][abrv1_index+1:]):
                 #if the current abreviation is in the word then we delete it
-                if abrv in abrv2:
-                    all_abrvs[i].remove(abrv)
+                if abrv1 in abrv2:
+                    all_abrvs[word_index].remove(abrv1)
                     #all_abrvs[abrv2_i].remove(abrv)
-                    print(abrv+ abrv2+' '+ str(abrv_i) + str(abrv2_i))
+                    print(abrv1+ abrv2+' '+ str(abrv1_index) + str(abrv2_index))
                     continue
                 
     return all_abrvs
@@ -197,7 +219,7 @@ def find_best_score(all_abrvs):
     best_abrvs = []
     
     #ittarate through all combinations of abreviations
-    for i, word in enumerate(all_abrvs):
+    for abrvs_index, abrvs in enumerate(all_abrvs):
         #create an array for the high scores for each word incase of multiple options
         abrv_high_scores = ''
         #create a High score
@@ -206,20 +228,23 @@ def find_best_score(all_abrvs):
         High_score_index = 0
         
         #loop through each indavidual score and keep track of its index
-        for j, score in enumerate(word):
+        for abrve_single_index, abrv_single in enumerate(abrvs):
             #create the score of the current abreviation we are on
-            current_score = score[-2:].replace(':','')
+            current_score = abrv_single[-2:].replace(':','')
             current_score = int(current_score)
             #check if the current score is less than the Highest score so far
             if current_score < High_score:
                 #if it is > then we create a new high-score and save its index
                 High_score = current_score
-                High_score_index = j
+                High_score_index = abrve_single_index
                 
         #once we have found this we append this to our abrv high scores for our current word  
-        abrv_high_scores= all_abrvs[i][High_score_index]
+        abrv_high_scores= all_abrvs[abrvs_index][High_score_index]
         #we then append these to all of our abrvs
+        High_score_index = 0
+        High_score = 1000   
         best_abrvs.append(abrv_high_scores)
+        
         
 
         
@@ -259,17 +284,23 @@ def check_multiple_high_scores(best_abrvs,all_abrvs):
 def main(values,trees):
 
     text = read_file_lines(trees)
-    #print(text)
+    print(text)
     values =  create_dict_from_file(values)
     #print(values)
     word_values = scores_for_words(values, text)     
     #print(word_values)
-    all_abrvs = create_all_abrvs(values, text)
-    all_abrvs = Delete_Multiples(all_abrvs)
+    
+    # all_abrvs = create_all_abrvs(values, text)
+    # print(all_abrvs[0:5]) 
+    
+    all_abrvs = create_all_abrvs2(values, text)
+    print(all_abrvs[0:5])
+    #all_abrvs = Delete_Multiples(all_abrvs)
     best_abrvs = find_best_score(all_abrvs)
-
+    
     print(best_abrvs)
-    #print(check_multiple_high_scores(best_abrvs,all_abrvs))
+    #print(create_all_abrvs2(values, text))
+       #print(check_multiple_high_scores(best_abrvs,all_abrvs))
     
     
     
