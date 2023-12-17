@@ -138,3 +138,53 @@ def create_all_abrvs2(values, text):
 
     return all_abrvs
 
+
+#IDK what the point in this was lmao
+def check_multiple_high_scores(best_abrvs,all_abrvs):
+    all_high_scores = []
+    
+    for i, word in enumerate(all_abrvs):
+        multiple_abrv = []
+        for j, abrv in enumerate(word):
+            
+            best_score = str(best_abrvs[i][-2:]).replace(':','')
+            best_score = int(best_score)
+            current_score = abrv[-2:].replace(':','')
+            if best_abrvs[i] == abrv:
+                continue
+            elif best_score ==current_score:
+                multiple_abrv.append(all_abrvs[i][j])
+                print(all_abrvs[i][j])
+        
+        if len(multiple_abrv) != 0:
+            all_high_scores.append(multiple_abrv)
+            
+    if len(all_high_scores) != 0:   
+        return all_high_scores
+    
+    else:
+        print('no multiple high scores')
+        
+
+
+#previous code for finding duplicates
+def delete_duplicates(all_abrvs):
+    deleted = []
+    #loop through all list of abrreviations of each word
+    for i, word in enumerate(all_abrvs):
+        #loop through each indavidual abreviation
+        for j, abrv in enumerate(word):
+            #loop through all list of abrreviations of each word
+            for k, word2 in enumerate(all_abrvs[i+1:]):
+                #loop through each indavidual abreviation
+                for l, abrv2 in enumerate(word2):
+                    #check if the first abreveation is in the second abreveation
+                    if abrv == abrv2:
+                        word.remove(abrv)
+                        print(abrv)
+                
+    
+#previous code for finding duplicates
+
+
+
