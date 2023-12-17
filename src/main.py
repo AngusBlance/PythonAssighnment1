@@ -174,7 +174,7 @@ def write_to_file(best_abrvs,norm_text, name, input_file):
         for n, abrv in zip(norm_text, best_abrvs):
             # write the word and the abreviation to the file as asked in assignment
             output_file.write(n + '\n')
-            output_file.write(abrv + '\n') 
+            output_file.write(abrv[0:3] + '\n') 
         
 
 # delete duplicates as asked in the assighnment
