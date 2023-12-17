@@ -1,4 +1,6 @@
+#import the os library so we can get the name of the input file without the extension
 import os
+#set the file paths for the values and trees files
 values = "data/values.txt"
 trees = "data/trees.txt"
 
@@ -8,12 +10,23 @@ def read_file_lines(file_path):
     
     #open file
     with open(file_path, 'r') as file:
-        #iterate through the lines in our file and remove and \n's
-
+        #iterate through the lines in our file and remove and \n's, spaces, -'s and 's aswell changing spaces to $'s and making everything uppercase
         words = [line.replace('\n','').replace(' ', '$').replace('-','').replace("'",'').upper() for line in file]
-
+    #return the list of words
     return words
 
+#make array of words without any changes for writing to file
+def read_file_normal(file_path):
+    # Create an empty list to store the words
+    words = []
+    # Open the file and read its content
+    with open(file_path, 'r') as file:
+        # Iterate over each line in the file
+        for line in file:
+            # Split each line into words and add them to the list.
+            words.append(line.strip())
+
+    return words
 
 
 def create_dict_from_file(file_path):
@@ -39,7 +52,7 @@ def create_dict_from_file(file_path):
 
 
 
-def create_all_abrvs3(values, text):
+def create_all_abrvs(values, text):
     #make list for all abreviations
     all_abrvs = []
     #itterate through each word
@@ -87,110 +100,129 @@ def create_all_abrvs3(values, text):
     
 
     
-def Delete_Multiples(all_abrvs):
 
-    #loop through all abrreviations of each word
-    for word_index, word in enumerate(all_abrvs):
-        #loop through each indavidual abreviation
-        
-        for abrv1_index, abrv1 in enumerate(word):
-            #we are now itterating through each abreviation
-            #now we need to itterate from the current abreviation to the end of the list to check for duplicates
-            for abrv2_index, abrv2 in enumerate(all_abrvs[word_index:][abrv1_index+1:]):
-                #if the current abreviation is in the word then we delete it
-                if abrv1 in abrv2:
-                    all_abrvs[word_index].remove(abrv1)
-                    #all_abrvs[abrv2_i].remove(abrv)
-                    print( str(abrv1) + ' at position ' + str(abrv1_index) + str(abrv2_index) )
-                    continue
-                
-    return all_abrvs
             
             
 
 def find_best_score(all_abrvs):
-    #I regret using high score as a variable name but I am too far in to change it now
+    # I regret using high score as a variable the lowest score is the best :( 
+    #create a list for the best abreviations
     best_abrvs = []
-    
-    #ittarate through all combinations of abreviations
+
+    # iterate through all combinations of abbreviations
     for abrvs_index, abrvs in enumerate(all_abrvs):
-        #create an array for the high scores for each word incase of multiple options
-        abrv_high_scores = ''
-        #create a High score
+        # create a High score it is high so that the first score is always lower
         High_score = 1000
-        #save the index of the highest score
+        # save the index of the highest score. i dont think this is needed 
         High_score_index = 0
-        
-        #loop through each indavidual score and keep track of its index
+
+        # loop through each individual score and keep track of its index
         for abrve_single_index, abrv_single in enumerate(abrvs):
-            #create the score of the current abreviation we are on
-            current_score = abrv_single[-2:].replace(':','')
-            current_score = int(current_score)
-            #check if the current score is less than the Highest score so far
+            # create the score of the current abbreviation we are on
+            current_score = int(abrv_single[-2:].replace(':', ''))
+            # check if the current score is less than the Highest score so far
             if current_score < High_score:
-                #if it is > then we create a new high-score and save its index
+                # if it is, we create a new high-score (lowest score) and save its index
                 High_score = current_score
                 High_score_index = abrve_single_index
-                
-        #once we have found this we append this to our abrv high scores for our current word  
-        abrv_high_scores= all_abrvs[abrvs_index][High_score_index]
-        #we then append these to all of our abrvs
-        High_score_index = 0
-        High_score = 1000   
-        best_abrvs.append(abrv_high_scores)
-        
+
+        # check if High_score_index is within bounds before accessing the list (I had problems with empty lists from the 
+        # delete_duplicates function)
+        if 0 <= High_score_index < len(abrvs):
+            # once we have found this, we append this to our abrv high scores for our current word
+            best_abrvs.append(abrvs[High_score_index])
+        else:
+            # if the index is out of bounds we append an empty string 
+            best_abrvs.append('') 
+
     return best_abrvs
+
+
+# just some user interface stuff as requested in the assighnment
+def grab_file_name():
+    #print welcome message. Very cool!
+    print('Welcome to the abbreviation generator!')
+    print('to use the trees file as for the assighnment use data/trees.txt')
+    #get the file name and the users name
+    file =  input('Please enter the directory of the file you would like to abbreviate: ')
+    name = input('Please enter your surname: ')
+    #return the file name and the users name
+    return file, name
+
+
+
+
+
+def write_to_file(best_abrvs,norm_text, name, input_file):
+    # Using the os library, get the name of the input file without the extension
+    # I used this website to help me with this https://docs.python.org/3/library/os.path.html
+    # use os.path for pathname manipulations
+    # use basename to get the base name of the file
+    file_name = os.path.basename(input_file)
+    #use splitext to split the file name and the extension to get the file name without the extension (gets rit of .txt)
+    file_name_without_extension = os.path.splitext(file_name)[0]
+    
+    # doing this made it work?
+    base_file_name = os.path.basename(file_name_without_extension)
+    
+    # Construct the output filename
+    filename = name + '_' +  base_file_name + '_abbrevs.txt'
+    
+    # Open the output file
+    with open(filename, 'w') as output_file:
+        # itterate through the list of normal words and the list of best abreviations
+        for n, abrv in zip(norm_text, best_abrvs):
+            # write the word and the abreviation to the file as asked in assignment
+            output_file.write(n + '\n')
+            output_file.write(abrv + '\n') 
         
+
+# delete duplicates as asked in the assighnment
+def delete_duplicates(all_abrvs):
+    # turn our matrix of abbreviations into a one dimensional list of abbreviations
+    #same as 2 for loops and appending to a list
+    flat_abrvs = [item for sublist in all_abrvs for item in sublist]
+
+    # create dictionary (hashmap) where the key is the abbreviation and the value 
+    # is the count of the abbreviation
+    abbreviation_counts = {}
+    # iterate through each abbreviation 
+    for item in flat_abrvs:
+        # split the abbreviation into the word and the score at the ':'
+        # but keep only the word [0]
+        abbreviation = item.split(':')[0]
+        # add the abbreviation to the dictionary and increment its count by 1
+        abbreviation_counts[abbreviation] = abbreviation_counts.get(abbreviation, 0) + 1
+
+    
+    # create a new list for the filtered abbreviations
+    filtered_abrvs = []
+
+    # iterate through each sublist in the list of all abbreviations
+    for sublist in all_abrvs:
+        # create a new list for the filtered abbreviations for the current word
+        filtered_sublist = []
+        # iterate through each abbreviation in the current sublist
+        for item in sublist:
+            # split the abbreviation into the word and the score at the ':' as seen previously
+            abbreviation = item.split(':')[0]
+            # check if the abbreviation only occurs once in the list of abbreviations
+            if abbreviation_counts[abbreviation] == 1:
+                # if it does, we append it to the filtered list
+                filtered_sublist.append(item)
+        # append the filtered list to the list of filtered abbreviations
+        filtered_abrvs.append(filtered_sublist)
+
+    
+    # return the filtered list of abbreviations
+    return filtered_abrvs
             
 
 
-def delete_duplicates2(all_abrvs):
-    unique_abrvs_set = set()
-    
-    # Iterate over each word in the 2D array
-    for word in all_abrvs:
-        # Use a set to keep track of unique abbreviations within the current word
-        unique_in_word = set()
-        unique_word = []
-        for abrv in word:
-            if abrv not in unique_in_word:
-                # If the abbreviation is not in the set, add it to both sets
-                unique_in_word.add(abrv)
-                unique_abrvs_set.add(abrv)
-                unique_word.append(abrv)
-        
-        # Replace the original word with the list of unique abbreviations
-        word[:] = unique_word
-        
-        
-def grab_file_name():
-    print('Welcome to the abbreviation generator!')
-    print('to use the trees file as for the assighnment use data/trees.txt')
-    file =  input('Please enter the directory of the file you would like to abbreviate: ')
-    name = input('Please enter your surname: ')
-    return file, name
-
-def write_to_file(best_abrvs, name, file):
-    #using the os library we can get the name of the file without the extension
-    #I found details for the os library on https://docs.python.org/3/library/os.html
-    #get the name of the file without the extension
-    file_name = os.path.basename(file)
-    #get the name of the file without the extension
-    file_name_without_extension = os.path.splitext(file_name)[0]
-    #Extract only the base name without the directory
-    file = os.path.basename(file_name_without_extension)
-    
-    filename = name + '_' +  file + '_abbrevs.txt'
-    
-    with open(filename, 'w') as file:
-        for abrv in best_abrvs:
-            file.write(abrv + '\n')
-        file.write(name)
 
 
 def main(values):
-    
-    #C:\Users\angus\Programmes\PythonAssighnment1-1\data\trees.txt
+    #get the file name and the users name
     [file, name] = grab_file_name()
     
     #read the text file and save it to a variable
@@ -200,15 +232,20 @@ def main(values):
     values =  create_dict_from_file(values)
     
     #create a list of all abreviations
-    all_abrvs = create_all_abrvs3(values, text)
+    all_abrvs = create_all_abrvs(values, text)
+   
+    
     #delete all duplicates
-    all_abrvs = Delete_Multiples(all_abrvs)
+    all_abrvs = delete_duplicates(all_abrvs)
+    
+    #find the best score for each word
     best_abrvs = find_best_score(all_abrvs)
     
-    write_to_file(best_abrvs, name, file)
+    #read the text file again but this time without any changes
+    norm_text = read_file_normal(file)
     
-    print(best_abrvs)
-    
+    #write the best abreviations to a file
+    write_to_file(best_abrvs,norm_text, name, file)
     
     
     

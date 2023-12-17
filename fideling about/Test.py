@@ -30,3 +30,4 @@ def remove_duplicates_pairwise(all_abrvs):
 all_abrvs = [['a', 'b', 'c'], ['d', 'e'], ['a', 'c', 'f']]
 output_array = remove_duplicates_pairwise(all_abrvs)
 print(output_array)
+
